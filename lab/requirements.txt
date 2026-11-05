@@ -1,0 +1,28 @@
+# Direct dependencies for the KPI lab. Pinned to what was verified working on 2026-11-05.
+# Install with:  uv pip install --python .venv/bin/python -r requirements.txt
+# (a full resolved freeze lives in requirements.lock.txt)
+
+# query engine: reads parquet + sqlite directly, no server
+duckdb==2.0.0
+
+# dataframe / columnar / charts
+pandas==3.1.1
+numpy==2.5.4
+pyarrow==26.0.1
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# statistics: control limits, regression, before/after tests
+statsmodels==0.15.0
+scipy==1.18.1
+
+# notebooks
+jupyterlab==4.6.5
+ipykernel==7.4.0
+nbconvert==7.17.2
+
+# optional: Home Assistant recorder Postgres (see README, "optional richer source")
+psycopg2-binary==2.9.13
+
+# optional: Gitea API pulls for private repos
+requests==2.34.2

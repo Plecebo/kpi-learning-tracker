@@ -1,0 +1,47 @@
+# Week → exercise → query
+
+Each week of the roadmap (`~/work/2026-11-04-kpi-learning-roadmap.md`) has a check-in artifact.
+This table says which part of the lab produces it. Rows marked **manual** are judgement work — the
+lab gives you the numbers, not the verdict.
+
+| Week | Framework | Lab artifact | Query / notebook | Status |
+|---|---|---|---|---|
+| 1 | metric literacy (leading/lagging, vanity/actionable) | 5-metric inventory with labels + 3 rewrites | `sql/w01_metric_inventory.sql` (numbers) + **manual** (labels) | runnable |
+| 2 | SMART | 10 candidate KPIs with measured evidence + 5-criterion pass/fail | `sql/w02_smart_kpis.sql` | runnable, 5 rows need your judgement |
+| 3 | Balanced Scorecard | 4-perspective scorecard, ≤12 measures | **manual** — no query; map each measure to an existing dataset | not automated on purpose |
+| 4 | OKR | 1 Objective + 3 KRs with baselines | `sql/w04_okr_baseline.sql` | runnable |
+| 5 | GQM | one full goal→question→metric trace | `sql/w05_gqm_trace.sql` | runnable |
+| 6 | North Star + guardrails | 1 North Star + 3 guardrails with rationale | **manual**; `w04`'s guardrail row is the model | not automated on purpose |
+| 7 | measurement design | one operational-definition card (formula, source, frequency, owner, floor/ceiling, snapshot) | template in the check-in; every `data/raw` dataset has `_snapshot_utc` for the last field | template |
+| 8 | variation / signal vs noise | control chart with a signal-vs-noise verdict | `sql/w08_control_chart_inputs.sql` | runnable — 2 real signals in the November data |
+| 9 | before/after & causality | baseline, comparison, confounders | `sql/w09_before_after.sql` | runnable — the rate-limit episode |
+| 10 | dashboards & communication | dashboard + one-page "state of the metric" | `notebooks/` for the chart; Grafana is the estate's, not wired here | manual + notebook |
+| 11 | capstone | end-to-end pass (this is the portfolio piece) | combine `w05` + `w07` card + `w08` + `w09` | — |
+| 12 | consolidate & present | consolidation note + 5-min talk | **manual** | — |
+
+## Why three rows are deliberately not automated
+
+Weeks 3, 6 and 12 are judgement weeks: the frameworks are about *choosing* measures and defending
+them, and a query that "produces a Balanced Scorecard" would produce a fiction. The lab's job is to
+make the evidence cheap so the judgement gets the time.
+
+## Running one
+
+```bash
+bin/duckdb -no-agent -c ".read sql/w08_control_chart_inputs.sql"
+```
+
+Or in a notebook: `con.sql(open('../sql/w08_control_chart_inputs.sql').read()).df()`.
+
+## What each week needs from the data, and whether it's there
+
+| Need | Present? |
+|---|---|
+| A throughput metric with ≥4 weeks of history | yes — `kanban_tasks` (36 days at first build) |
+| A rework/quality metric | yes — `kanban_runs` (`outcome`, `had_error`) |
+| A genuinely stable process metric for SPC | yes — median run duration per day (`w08`) |
+| A real intervention to test before/after on | yes — the 2026-10-05 rate-limit episode (`w09`) |
+| A long sensor time series (temps, power, uptime) | **no** — needs the HA recorder credential; see `../data/README.md` |
+| PR review/merge latency | **thin** — only public Gitea repos are visible anonymously (10 commits) |
+
+The last two are the honest gaps. Neither blocks weeks 1–9; both would improve weeks 8–11.
