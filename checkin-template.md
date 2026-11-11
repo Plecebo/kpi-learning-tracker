@@ -9,4 +9,4 @@ Copy this file to `weeks/week-01.md` … `week-12.md` and fill it in. Sunday eve
 5. **One thing I'd now do differently when writing a metric:** (this journal line feeds the
    week 12 consolidation note and retention quiz)
 
-Then append one row to `../ledger.md`.
+Then append one row to `ledger.md` at the repository root.

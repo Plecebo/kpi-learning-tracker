@@ -1,6 +1,6 @@
 # KPI Learning — Accountability System Design
 
-Companion to `~/work/2026-11-04-kpi-learning-roadmap.md` (the "what"). This doc is the "did you
+Companion to `docs/kpi-learning-roadmap.md` (the "what"). This doc is the "did you
 actually do it, and did you get better" layer. The system is deliberately dogfooded: the learning
 plan about KPIs is itself tracked with GQM, an operational definition, and a signal-vs-noise
 verdict — so every week of the plan also practices the framework on itself.
@@ -24,8 +24,9 @@ can't fill a metric, that failure *is* the check-in's finding.
 ## 2. Where the files live
 
 ```
-~/work/kpi-learning-tracker/
+kpi-learning-tracker/        # the repository root — everything the plan needs is in here
 ├── README.md            # index: which doc does what
+├── docs/                # the "what": kpi-learning-roadmap.md + kpi-development-frameworks.md
 ├── ledger.md            # one row per week — the single source of progress truth
 ├── rubric.md            # the 0–3 self-assessment rubric (same scale all 12 weeks)
 ├── checkin-template.md  # copy per week: weeks/week-01.md .. week-12.md

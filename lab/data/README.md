@@ -80,11 +80,12 @@ Kinds and what they mean for KPI work:
 
 ## `gitea_commits.parquet` — commit history, public repos only
 
-Source: `your-gitea.example.com` public API (anonymous). Grain: commit.
+Source: `$GITEA_API` public API (anonymous). Grain: commit.
 Columns: `repo`, `sha`, `author_name`, `author_email`, `authored_at_utc`, `committed_at_utc`, `message`, `gitea_login`, `_snapshot_utc`.
 
-**Thin on purpose-of-design:** only two repos are public (`larry/hermes-deployment`, `larry/smk-branding`
-→ 10 commits). The volume lives in private repos. To include them, export a Gitea token and re-run:
+**Thin on purpose-of-design:** only the public repos on the configured Gitea host are reachable
+anonymously — in the original run that was two repos and ten commits; the volume lived in private
+ones. To include private repos, export a token and re-run:
 
 ```bash
 export GITEA_TOKEN=<token>      # read by name from the env; never written to disk here

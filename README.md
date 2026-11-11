@@ -7,8 +7,8 @@ Four parts, each with one job:
 
 | Path | What it is |
 |---|---|
-| `../2026-11-04-kpi-development-frameworks.md` | framework research: SMART, Balanced Scorecard, OKR, GQM (plus North Star / Performance Prism / 4DX) |
-| `../2026-11-04-kpi-learning-roadmap.md` | the 12-week roadmap — readings, weekly practice, a check-in artifact per week |
+| `docs/kpi-development-frameworks.md` | framework research: SMART, Balanced Scorecard, OKR, GQM (plus North Star / Performance Prism / 4DX) |
+| `docs/kpi-learning-roadmap.md` | the 12-week roadmap — readings, weekly practice, a check-in artifact per week |
 | `DESIGN.md`, `ledger.md`, `rubric.md`, `checkin-template.md`, `weeks/`, `mastery-tests.md` | the accountability system — did the work happen, and did it get better |
 | `lab/` | **the practice environment**: venv, DuckDB, Jupyter, and parquet snapshots of real estate data (`lab/README.md`) |
 
@@ -30,7 +30,7 @@ the "did it happen".
 
 ## What this is grounded in
 
-- Framework research is cited in `../2026-11-04-kpi-development-frameworks.md` (Doran 1981, Kaplan &
+- Framework research is cited in `docs/kpi-development-frameworks.md` (Doran 1981, Kaplan &
   Norton HBR 1992, Basili et al. 1994, Doerr/Grove).
 - Every dataset in `lab/data/raw` is a point-in-time snapshot of a live local source, documented
   column-by-column in `lab/data/README.md`. Nothing is synthetic.

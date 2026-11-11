@@ -10,7 +10,7 @@ Write, without notes, in one sitting (~60–90 min):
 1. One SMART objective for a real thing, then the 5-criterion check on it (name which SMART
    wording you're using — Doran's original or the modern one — and why).
 2. One OKR set: 1 Objective + 3 Key Results for a real change; mark each KR measurable/verifiable.
-3. A 4-perspective Balanced Scorecard (≤ 12 measures) for a named org (the estate is fine).
+3. A 4-perspective Balanced Scorecard (≤ 12 measures) for a named org (the lab is fine).
 
 ## Week 8 — Derivation & measurement (transfer test: unseen goal)
 

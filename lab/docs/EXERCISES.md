@@ -1,6 +1,6 @@
 # Week → exercise → query
 
-Each week of the roadmap (`~/work/2026-11-04-kpi-learning-roadmap.md`) has a check-in artifact.
+Each week of the roadmap (`docs/kpi-learning-roadmap.md`) has a check-in artifact.
 This table says which part of the lab produces it. Rows marked **manual** are judgement work — the
 lab gives you the numbers, not the verdict.
 
@@ -15,7 +15,7 @@ lab gives you the numbers, not the verdict.
 | 7 | measurement design | one operational-definition card (formula, source, frequency, owner, floor/ceiling, snapshot) | template in the check-in; every `data/raw` dataset has `_snapshot_utc` for the last field | template |
 | 8 | variation / signal vs noise | control chart with a signal-vs-noise verdict | `sql/w08_control_chart_inputs.sql` | runnable — 2 real signals in the November data |
 | 9 | before/after & causality | baseline, comparison, confounders | `sql/w09_before_after.sql` | runnable — the rate-limit episode |
-| 10 | dashboards & communication | dashboard + one-page "state of the metric" | `notebooks/` for the chart; Grafana is the estate's, not wired here | manual + notebook |
+| 10 | dashboards & communication | dashboard + one-page "state of the metric" | `notebooks/` for the chart; Grafana is the lab's, not wired here | manual + notebook |
 | 11 | capstone | end-to-end pass (this is the portfolio piece) | combine `w05` + `w07` card + `w08` + `w09` | — |
 | 12 | consolidate & present | consolidation note + 5-min talk | **manual** | — |
 
