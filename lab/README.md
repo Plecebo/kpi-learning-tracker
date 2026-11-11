@@ -93,11 +93,11 @@ move your numbers.
 The long sensor history — whole-home energy, temperature, humidity — is the richest source in the lab,
 and it is now wired: `make data-ha` pulls the ~30 entities in `scripts/ha_entities.sql` from the recorder
 Postgres into `data/raw/ha_*.parquet`. The DSN is read **only** from the `HA_POSTGRES_URL` environment
-variable (sourced from BWS by whoever runs the fetch) and opened read-only; it is never written to a file,
+variable (supplied by whoever runs the fetch) and opened read-only; it is never written to a file,
 a parquet, or a doc:
 
 ```bash
-export HA_POSTGRES_URL="$(bws secret get homeassistant_postgres_url -o json | jq -r .value)"
+export HA_POSTGRES_URL="postgresql://user:pass@host:5432/hass"   # from your own secret store
 make data-ha          # or `make data`, which includes it
 ```
 
