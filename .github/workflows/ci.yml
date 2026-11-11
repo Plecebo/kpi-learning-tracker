@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs-and-scripts:
+    name: static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: shell scripts parse
+        run: |
+          find . -name '*.sh' -not -path './.git/*' -print0 | while IFS= read -r -d '' f; do
+            bash -n "$f" || { echo "::error file=$f::bash -n failed"; exit 1; }
+          done
+      - name: python compiles
+        run: python -m compileall -q scripts lab/scripts
+      - name: every relative link resolves
+        run: python scripts/check_links.py
+      - name: the checker itself catches a moved document
+        run: |
+          # A checker that never fails is decoration. This proves the two failure modes that
+          # actually happened: a reference to a file in a parent directory, and a `~/` path.
+          trap 'rm -f ./_case.md' EXIT
+          printf 'see [the roadmap](../2026-11-04-kpi-learning-roadmap.md) and `~/work/notes.md`\n' > ./_case.md
+          if python scripts/check_links.py; then
+            echo "::error::check_links.py passed a document with broken references"
+            exit 1
+          fi
+          echo "checker caught the broken document, as it must"
+      - name: every week has its exercise file
+        run: |
+          missing=0
+          for n in 01 02 04 05 08 09; do
+            if ! ls lab/sql/w${n}_*.sql >/dev/null 2>&1; then
+              echo "::error::week $n has no lab/sql/w${n}_*.sql exercise"
+              missing=1
+            fi
+          done
+          exit $missing
