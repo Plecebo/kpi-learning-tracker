@@ -117,10 +117,16 @@ def check_inline_references(path: Path, text: str) -> list[str]:
         token = token.split("#", 1)[0].rstrip(":.,;")
         if not token:
             continue
-        suffix = Path(token).suffix.lower()
+        # A reference whose last segment carries no extension names a directory: a convention
+        # (`sql/`, `notebooks/`) or an output of `make data` (`data/raw/`), which cannot exist in a
+        # clone. Files are the claim worth checking; directories are documented, not shipped.
+        stem = Path(token.rstrip("/"))
+        if not stem.suffix:
+            continue
+        suffix = stem.suffix.lower()
         if suffix in GENERATED_EXTS or READER_CREATED.match(token):
             continue
-        if suffix not in KNOWN_EXTS and "/" not in token:
+        if suffix not in KNOWN_EXTS:
             continue
 
         if token.startswith("~/") or token.startswith("/"):
