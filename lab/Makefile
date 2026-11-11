@@ -17,7 +17,7 @@ DUCKDB_VERSION := v2.0.0
 -include .env
 export
 
-.PHONY: setup venv deps kernel tools data data-kanban data-gitea check lab query clean-note
+.PHONY: setup venv deps kernel tools data data-kanban data-gitea data-ha check lab query clean-note
 
 setup: venv deps tools kernel
 	@echo "setup complete — now: make data"
@@ -34,7 +34,7 @@ kernel: venv
 tools:
 	@bash scripts/fetch_duckdb.sh $(DUCKDB_VERSION)
 
-data: data-kanban data-gitea
+data: data-kanban data-gitea data-ha
 	@echo "datasets rebuilt:"
 	@ls -la data/raw/*.parquet
 
@@ -45,6 +45,15 @@ data-kanban: tools
 data-gitea: tools
 	bash scripts/fetch_gitea.sh
 	$(DUCKDB) -init scripts/gitea_to_parquet.sql -c "select 'gitea snapshot written'"
+
+# Home Assistant recorder long-term statistics. The DSN is read from the environment
+# (HA_POSTGRES_URL, sourced from BWS by whoever runs the fetch) — never from a file.
+# HA_SHORT_TERM=1 additionally snapshots the 30-day 5-minute table (statistics_short_term).
+data-ha: venv tools
+	@test -n "$(HA_POSTGRES_URL)" || { echo "HA_POSTGRES_URL is not set — export it (read from BWS, never from a file)"; exit 1; }
+	$(PY) scripts/fetch_ha.py
+	$(DUCKDB) -init scripts/ha_to_parquet.sql -c "select 'ha parquet written'"
+	@test -n "$(HA_SHORT_TERM)" || rm -f data/raw/ha_short_term_5min.parquet
 
 check: venv
 	$(PY) scripts/env_check.py

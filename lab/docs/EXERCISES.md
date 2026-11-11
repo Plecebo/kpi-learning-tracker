@@ -13,8 +13,8 @@ lab gives you the numbers, not the verdict.
 | 5 | GQM | one full goal→question→metric trace | `sql/w05_gqm_trace.sql` | runnable |
 | 6 | North Star + guardrails | 1 North Star + 3 guardrails with rationale | **manual**; `w04`'s guardrail row is the model | not automated on purpose |
 | 7 | measurement design | one operational-definition card (formula, source, frequency, owner, floor/ceiling, snapshot) | template in the check-in; every `data/raw` dataset has `_snapshot_utc` for the last field | template |
-| 8 | variation / signal vs noise | control chart with a signal-vs-noise verdict | `sql/w08_control_chart_inputs.sql` | runnable — 2 real signals in the November data |
-| 9 | before/after & causality | baseline, comparison, confounders | `sql/w09_before_after.sql` | runnable — the rate-limit episode |
+| 8 | variation / signal vs noise | control chart + signal verdict on three differently-behaved series — the whole-home March 2026 step, the stable dehumidifier ("no signal"), the sparse carport | `data/raw/ha_statistics_daily.parquet` (the real case) + `sql/w08_control_chart_inputs.sql` (kanban mechanics) | runnable |
+| 9 | before/after & causality | baseline, comparison, confounders on the 2026-03-07→03-26 episode (weather-normalised) **and** the heat-pump null result | `data/raw/ha_statistics_daily.parquet` + `sql/w09_before_after.sql` (the rate-limit episode) | runnable |
 | 10 | dashboards & communication | dashboard + one-page "state of the metric" | `notebooks/` for the chart; Grafana is the lab's, not wired here | manual + notebook |
 | 11 | capstone | end-to-end pass (this is the portfolio piece) | combine `w05` + `w07` card + `w08` + `w09` | — |
 | 12 | consolidate & present | consolidation note + 5-min talk | **manual** | — |
@@ -41,7 +41,9 @@ Or in a notebook: `con.sql(open('../sql/w08_control_chart_inputs.sql').read()).d
 | A rework/quality metric | yes — `kanban_runs` (`outcome`, `had_error`) |
 | A genuinely stable process metric for SPC | yes — median run duration per day (`w08`) |
 | A real intervention to test before/after on | yes — the 2026-10-05 rate-limit episode (`w09`) |
-| A long sensor time series (temps, power, uptime) | **no** — needs the HA recorder credential; see `../data/README.md` |
+| A long sensor time series (temps, power, energy) | yes — `ha_statistics_hourly.parquet` / `ha_statistics_daily.parquet`, 22 months at hourly grain |
 | PR review/merge latency | **thin** — only public Gitea repos are visible anonymously (10 commits) |
 
-The last two are the honest gaps. Neither blocks weeks 1–9; both would improve weeks 8–11.
+The second row is the remaining honest gap: it does not block weeks 1–9, and it would improve week 7's
+"measure the process" exercise. (It is a separate, known defect in `scripts/fetch_gitea.sh`, out of scope
+for the HA-recorder change — see the tracker issue.)

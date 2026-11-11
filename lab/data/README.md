@@ -96,9 +96,85 @@ The token is never stored by this lab — `scripts/fetch_gitea.sh` only reads it
 
 ---
 
+## `ha_statistics_hourly.parquet` — Home Assistant recorder, one row per (entity, hour)
+
+Source: the HA recorder Postgres `statistics` table, for the ~30 entities in the
+`scripts/ha_entities.sql` allowlist. Grain: `(statistic_id, start_ts)`. Built by `make data-ha`
+(read-only; the DSN comes from `HA_POSTGRES_URL`, never from a file).
+
+| Column | Type | Notes |
+|---|---|---|
+| `statistic_id` | VARCHAR | the entity id, e.g. `sensor.heat_pump_daily_energy` |
+| `unit_of_measurement` | VARCHAR | `kWh`, `W`, `°F`, `%`, `inHg` |
+| `start_ts` | TIMESTAMPTZ | start of the UTC hour (the grain) |
+| `period_value` | DOUBLE | **the derived hourly value** — reset-aware Δ`sum` for counter series, `mean` for gauges |
+| `mean`, `min`, `max` | DOUBLE | recorder aggregates; populated for gauge series, NULL for counters |
+| `state` | DOUBLE | recorder `state`; **do not use as the period value** (see caveat 1) |
+| `sum` | DOUBLE | recorder cumulative `sum`; the raw counter |
+| `last_reset_ts` | TIMESTAMPTZ | recorder reset marker; NULL throughout this estate |
+| `period_kind` | VARCHAR | `sum` (counter, Δsum) or `mean` (gauge) |
+| `_snapshot_utc` | TIMESTAMPTZ | when this parquet was built |
+
+## `ha_statistics_daily.parquet` — the same series rolled up to the house day
+
+Source: the hourly file, re-bucketed into `America/Los_Angeles` local days. Grain:
+`(statistic_id, local_date)`.
+
+| Column | Type | Notes |
+|---|---|---|
+| `statistic_id` | VARCHAR | |
+| `local_date` | DATE | the calendar day in `America/Los_Angeles` |
+| `value` | DOUBLE | `sum(period_value)` for counters, `avg(period_value)` for gauges |
+| `n_periods` | INT | hourly periods present that local day |
+| `expected_periods` | INT | 24 (a full day); the first/last day are partial |
+| `coverage_pct` | DOUBLE | `n_periods / expected_periods × 100` |
+| `_snapshot_utc` | TIMESTAMPTZ | |
+
+## `ha_entity_catalog.parquet` — one row per entity: "which series is even usable"
+
+| Column | Type | Notes |
+|---|---|---|
+| `statistic_id` | VARCHAR | |
+| `unit` | VARCHAR | |
+| `period_kind` | VARCHAR | `sum` / `mean` (decided by which column is non-null, not the flags) |
+| `first_ts`, `last_ts` | TIMESTAMPTZ | the raw first/last sample — `first_ts` can reveal a stale pre-install row |
+| `n_periods` | INT | total rows |
+| `expected_periods` | INT | hourly buckets over the *active* span (a leading gap > 7 days is a stale first-touch and excluded) |
+| `coverage_pct` | DOUBLE | `n_periods / expected_periods × 100` — the fetch FAILS if < 90% |
+| `use_week` | VARCHAR | which roadmap week(s) the series serves |
+
+## `ha_short_term_5min.parquet` — 5-minute surface (optional, behind a flag)
+
+Built only when `HA_SHORT_TERM=1` is set at fetch time. Same columns as the hourly file,
+grain `(statistic_id, start_ts)` at 5-minute resolution, but only the last 30 days
+(`statistics_short_term` retention). Empty/absent otherwise.
+
+## The seven caveats (read these before you compute anything)
+
+1. **`sum` is cumulative; the period value is Δ`sum`, never `state`.** `state` means different
+   things per entity — for opower it is the hour, for `crawlspace_dehumidifier` it is
+   today-to-date. Only the reset-aware delta of `sum` is the hourly value.
+2. **Resets are dropped, not differenced.** A row whose `last_reset_ts` differs from the
+   previous row's (or, since that marker is NULL here, whose Δ`sum` is more negative than
+   −0.01 kWh) is a counter reset (opower resets each billing cycle, ~40–112 kWh) and is
+   excluded; tiny negatives are float noise and are clamped to 0.
+3. **`has_sum` / `has_mean` are unreliable.** 407/1183 entities carry `has_sum`, 0 carry
+   `has_mean`, yet temperature entities have `mean`/`min`/`max` and NULL `state`/`sum`.
+   `period_kind` is decided by which columns are non-null, not by the flags.
+4. **Buckets are UTC hours; the house day is `America/Los_Angeles`.** The first local bucket
+   (2024-12-31) is partial because the series starts 2025-01-01 00:00Z — that is correct and
+   asserted, not "fixed".
+5. **Dead and renamed entities exist.** `sensor.heat_4_daily_energy` has 1 row in 22 months;
+   `electric_water_heater_*` appears twice (`…power` / `…power_2`). The extractor reports
+   coverage per series and FAILS when a requested series is absent or below 90%.
+6. **Only `statistics` is multi-year.** `states` and `statistics_short_term` retain 30 days;
+   `statistics` is the only surface with 22 months of history.
+7. **Do not use the REST history API for bulk work.** `/api/history/period` clamps to 24h
+   without `end_time`. The recorder Postgres is the correct source.
+
+---
+
 ## Not included (and why)
 
-- **HA recorder sensor history** (the richest series): needs a Postgres credential. See the README's
-  "optional richer source" — export a CSV from HA and drop it in `data/raw/`.
 - **Task bodies, comments, and messages**: real text, potentially personal. Excluded from the snapshot;
   query the live DB read-only if a specific exercise needs it.
