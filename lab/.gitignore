@@ -1,5 +1,6 @@
 # environment — rebuild with `make setup`
 .venv/
+.env
 
 # pinned duckdb CLI — refetch with `make tools`
 bin/duckdb

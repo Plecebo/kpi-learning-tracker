@@ -7,10 +7,15 @@
 #   make query Q="select 1;"   one-off DuckDB query
 
 SHELL   := /bin/bash
-UV      := uv
+UV      ?= uv
 PY      := .venv/bin/python
 DUCKDB  := bin/duckdb -no-agent
 DUCKDB_VERSION := v2.0.0
+
+# Load .env if present (gitignored): KANBAN_DB, GITEA_API, GITEA_TOKEN.
+# Each is also overridable as a real environment variable.
+-include .env
+export
 
 .PHONY: setup venv deps kernel tools data data-kanban data-gitea check lab query clean-note
 
@@ -34,6 +39,7 @@ data: data-kanban data-gitea
 	@ls -la data/raw/*.parquet
 
 data-kanban: tools
+	@test -n "$(KANBAN_DB)" || { echo "KANBAN_DB is not set — copy .env.example to .env and fill it in"; exit 1; }
 	$(DUCKDB) -init scripts/export_kanban.sql -c "select 'kanban snapshot written'"
 
 data-gitea: tools

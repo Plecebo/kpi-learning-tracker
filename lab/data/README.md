@@ -80,7 +80,7 @@ Kinds and what they mean for KPI work:
 
 ## `gitea_commits.parquet` — commit history, public repos only
 
-Source: `your-gitea.example.com` public API (anonymous). Grain: commit.
+Source: `$GITEA_API` public API (anonymous). Grain: commit.
 Columns: `repo`, `sha`, `author_name`, `author_email`, `authored_at_utc`, `committed_at_utc`, `message`, `gitea_login`, `_snapshot_utc`.
 
 **Thin on purpose-of-design:** only two repos are public (`larry/hermes-deployment`, `larry/smk-branding`

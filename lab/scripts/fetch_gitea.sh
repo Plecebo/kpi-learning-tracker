@@ -6,7 +6,11 @@
 # read by name from the environment, never written into this file or into the snapshots.
 set -euo pipefail
 
-API="${GITEA_API:-https://your-gitea.example.com/api/v1}"
+API="${GITEA_API:-}"
+if [[ -z "$API" ]]; then
+  echo "GITEA_API is not set — copy .env.example to .env and fill it in" >&2
+  exit 1
+fi
 OUT="data/raw/gitea"
 PER_REPO="${PER_REPO:-200}"
 

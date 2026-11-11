@@ -15,9 +15,10 @@ agent/kanban task history, and Gitea commit history. Both are local, read-only, 
 ## Quickstart
 
 ```bash
-cd ~/work/kpi-learning-tracker/lab
-make setup     # venv + python deps + pinned duckdb CLI  (already done once)
-make data      # (re)build data/raw/*.parquet from the live estate DBs
+cd lab
+cp .env.example .env   # set KANBAN_DB and GITEA_API (see .env.example)
+make setup     # venv + python deps + pinned duckdb CLI
+make data      # (re)build data/raw/*.parquet from the configured sources
 make check     # smoke test: imports, dataset row counts, sanity assertions
 make lab       # JupyterLab on http://127.0.0.1:8888
 ```
@@ -68,7 +69,7 @@ make lab     # then open notebooks/00_environment_check.ipynb
 | `kanban_tasks` | `$KANBAN_DB` → `tasks` | one row per board task | `make data` |
 | `kanban_runs` | `$KANBAN_DB` → `task_runs` | one row per worker attempt | `make data` |
 | `kanban_events_daily` | `$KANBAN_DB` → `task_events` | event counts per day per kind | `make data` |
-| `gitea_commits` | public `your-gitea.example.com` API | one row per commit (public repos) | `make data` |
+| `gitea_commits` | `$GITEA_API` (public repos) | one row per commit | `make data` |
 
 The kanban DB is the *live* board, so the snapshots are point-in-time. Each parquet file carries a
 `_snapshot_utc` column — quote it when you write a baseline down, or a later refresh will silently
@@ -76,13 +77,13 @@ move your numbers.
 
 ### Optional richer source (needs a credential, not wired)
 
-Home Assistant's recorder Postgres (`your-ha-host`, db `hass`) has the long sensor history — the best
-data for weeks 8–9 (variation, before/after on a real sensor). The connection URL lives in
-`/config/secrets.yaml` inside HA (HA). To add it, export a CSV from that host and drop it in
-`data/raw/`; nothing in the lab needs the password written down:
+A Home Assistant recorder Postgres has the long sensor history — the best data for weeks 8–9
+(variation, before/after on a real sensor). The connection URL lives in the HA instance's
+`secrets.yaml`. To add it, export a CSV from that host and drop it in `data/raw/`; nothing in the
+lab needs the password written down:
 
 ```bash
-# on HA (docker exec into the HA container), with the dsn read from secrets.yaml at runtime
+# in the HA container, with the dsn read from secrets.yaml at runtime
 psql "$RECORDER_DSN" -c "\copy (SELECT * FROM states WHERE ...) TO STDOUT CSV HEADER" > ha_states.csv
 ```
 
