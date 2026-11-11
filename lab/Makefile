@@ -1,16 +1,21 @@
 # KPI lab — one-command lifecycle. Run from this directory.
 #
 #   make setup   venv + python deps + jupyter kernel + pinned duckdb CLI
-#   make data    snapshot the estate's real data into data/raw/*.parquet
+#   make data    snapshot the lab's real data into data/raw/*.parquet
 #   make check   smoke test (imports + datasets + sanity assertions)
 #   make lab     JupyterLab
 #   make query Q="select 1;"   one-off DuckDB query
 
 SHELL   := /bin/bash
-UV      := uv
+UV      ?= uv
 PY      := .venv/bin/python
 DUCKDB  := bin/duckdb -no-agent
 DUCKDB_VERSION := v2.0.0
+
+# Load .env if present (gitignored): KANBAN_DB, GITEA_API, GITEA_TOKEN.
+# Each is also overridable as a real environment variable.
+-include .env
+export
 
 .PHONY: setup venv deps kernel tools data data-kanban data-gitea check lab query clean-note
 
@@ -34,6 +39,7 @@ data: data-kanban data-gitea
 	@ls -la data/raw/*.parquet
 
 data-kanban: tools
+	@test -n "$(KANBAN_DB)" || { echo "KANBAN_DB is not set — copy .env.example to .env and fill it in"; exit 1; }
 	$(DUCKDB) -init scripts/export_kanban.sql -c "select 'kanban snapshot written'"
 
 data-gitea: tools

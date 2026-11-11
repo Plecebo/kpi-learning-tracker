@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# fetch_gitea.sh — pull commit history from the estate Gitea into data/raw/gitea/*.json
+# fetch_gitea.sh — pull commit history from any Gitea host into data/raw/gitea/*.json
 #
 # Only PUBLIC repos are reachable without a credential (that is the default and needs nothing).
 # If GITEA_TOKEN is exported in the environment, private repos are included too — the token is
 # read by name from the environment, never written into this file or into the snapshots.
 set -euo pipefail
 
-API="${GITEA_API:-https://your-gitea.example.com/api/v1}"
+API="${GITEA_API:-}"
+if [[ -z "$API" ]]; then
+  echo "GITEA_API is not set — copy .env.example to .env and fill it in" >&2
+  exit 1
+fi
 OUT="data/raw/gitea"
 PER_REPO="${PER_REPO:-200}"
 

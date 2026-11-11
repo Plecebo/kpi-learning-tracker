@@ -6,7 +6,7 @@
 INSTALL sqlite;
 LOAD sqlite;
 
-ATTACH '$KANBAN_DB' AS kb (TYPE sqlite, READ_ONLY);
+ATTACH getenv('KANBAN_DB') AS kb (TYPE sqlite, READ_ONLY);
 
 -- ---------------------------------------------------------------------------
 -- kanban_tasks — one row per board task. Lead/cycle time are precomputed in
